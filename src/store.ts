@@ -52,7 +52,44 @@ interface MediaStore {
 export const useMediaStore = create<MediaStore>()(
   persist(
     (set, get) => ({
-      items: [],
+      items: [
+        {
+          id: '1',
+          title: 'Dune: Part Two',
+          type: 'movie',
+          source: 'manual',
+          rating: 9,
+          review: 'A cinematic masterpiece. The scale and sound design are incredible.',
+          consumedDate: '2024-03-15T20:00:00Z',
+          posterUrl: 'https://picsum.photos/seed/dune/300/450',
+          creator: 'Denis Villeneuve',
+          tags: ['Sci-Fi', 'Epic']
+        },
+        {
+          id: '2',
+          title: 'Project Hail Mary',
+          type: 'book',
+          source: 'manual',
+          rating: 10,
+          review: 'One of the best sci-fi books I have ever read. Science is the superpower.',
+          consumedDate: '2024-02-10T10:00:00Z',
+          posterUrl: 'https://picsum.photos/seed/hailmary/300/450',
+          creator: 'Andy Weir',
+          tags: ['Sci-Fi', 'Space']
+        },
+        {
+          id: '3',
+          title: 'The Bear',
+          type: 'tv',
+          source: 'manual',
+          rating: 9,
+          review: 'Intense, stressful, and beautiful. The character development is top-notch.',
+          consumedDate: '2024-01-20T22:00:00Z',
+          posterUrl: 'https://picsum.photos/seed/thebear/300/450',
+          creator: 'Christopher Storer',
+          tags: ['Drama', 'Cooking']
+        }
+      ],
       addItem: (item) => set((state) => ({ 
         items: [{ ...item, id: uuidv4() }, ...state.items] 
       })),

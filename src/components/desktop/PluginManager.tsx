@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useMediaStore } from '../../store';
-import { Database, Radio, Share2, CheckCircle2, XCircle, Cloud, LayoutGrid } from 'lucide-react';
+import { Database, Radio, Share2, CheckCircle2, XCircle, Cloud, LayoutGrid, Server, Terminal } from 'lucide-react';
 import { RawDownloadModal } from './RawDownloadModal';
 import { OpenDataImportModal } from './OpenDataImportModal';
 import { GoogleDriveConfigModal } from './GoogleDriveConfigModal';
 import { BoxConfigModal } from './BoxConfigModal';
 import { WebDAVConfigModal } from './WebDAVConfigModal';
 import { S3ConfigModal } from './S3ConfigModal';
+import { SSHConfigModal } from './SSHConfigModal';
 
 const BACKENDS = [
   { id: 'openlibrary', name: 'Open Library', icon: Database, categories: ['book'], hasOpenData: true, hasOpenSearch: true, supportsLogin: true },
@@ -59,6 +60,8 @@ export const SYNC_BACKENDS = [
   { id: 's3', name: 'S3 Compatible', icon: Cloud, untested: true },
   { id: 'dav', name: 'WebDAV', icon: Cloud, untested: true },
   { id: 'nextcloud', name: 'Nextcloud', icon: Cloud, untested: true },
+  { id: 'sftp', name: 'SFTP (SSH)', icon: Server },
+  { id: 'sshfs', name: 'SSHFS / SCP', icon: Terminal },
   { id: 'raw_download', name: 'Raw Download Backup', icon: Database },
 ];
 
@@ -85,6 +88,7 @@ export function PluginManager() {
   const [showWebDAVModal, setShowWebDAVModal] = useState(false);
   const [showNextcloudModal, setShowNextcloudModal] = useState(false);
   const [showS3Modal, setShowS3Modal] = useState(false);
+  const [showSSHModal, setShowSSHModal] = useState<{ id: string, name: string } | null>(null);
   const [activeOpenDataPlugin, setActiveOpenDataPlugin] = useState<string | null>(null);
 
   const tabs: { id: PluginType, label: string, icon: any }[] = [
@@ -152,6 +156,7 @@ export function PluginManager() {
                               if (sync.id === 'dav') setShowWebDAVModal(true);
                               if (sync.id === 'nextcloud') setShowNextcloudModal(true);
                               if (sync.id === 's3') setShowS3Modal(true);
+                              if (sync.id === 'sftp' || sync.id === 'sshfs') setShowSSHModal({ id: sync.id, name: sync.name });
                             }}
                             className="text-[10px] font-bold px-2 py-1 rounded-lg bg-zinc-600 text-white hover:bg-zinc-500 transition-colors w-full text-center"
                           >
@@ -643,6 +648,14 @@ export function PluginManager() {
 
       {showS3Modal && (
         <S3ConfigModal onClose={() => setShowS3Modal(false)} />
+      )}
+
+      {showSSHModal && (
+        <SSHConfigModal 
+          onClose={() => setShowSSHModal(null)} 
+          pluginId={showSSHModal.id}
+          title={showSSHModal.name}
+        />
       )}
 
       {activeOpenDataPlugin && (

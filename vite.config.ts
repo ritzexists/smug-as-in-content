@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig, loadEnv} from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
@@ -11,6 +12,14 @@ export default defineConfig(({mode}) => {
     plugins: [
       react(), 
       tailwindcss(),
+      nodePolyfills({
+        include: ['buffer', 'process', 'util', 'stream', 'crypto', 'net'],
+        globals: {
+          Buffer: true,
+          global: true,
+          process: true,
+        },
+      }),
       VitePWA({
         registerType: 'autoUpdate',
         manifest: {

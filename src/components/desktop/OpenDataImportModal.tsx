@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Download, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useMediaStore } from '../../store';
 import { fetchFromS3 } from '../../services/s3Sync';
+import { downloadFromSFTP } from '../../services/sftpClient';
 
 export function OpenDataImportModal({ pluginId, onClose }: { pluginId: string, onClose: () => void }) {
   const [username, setUsername] = useState('');
@@ -9,6 +10,7 @@ export function OpenDataImportModal({ pluginId, onClose }: { pluginId: string, o
   const [error, setError] = useState('');
   const [successCount, setSuccessCount] = useState<number | null>(null);
   const { addItem, activePublicBackends, togglePublicBackend, getPluginSecret } = useMediaStore();
+  const isCustomBackend = pluginId === 's3' || pluginId === 'sftp';
 
   const pluginNames: Record<string, string> = {
     openlibrary: 'Open Library',
@@ -16,11 +18,12 @@ export function OpenDataImportModal({ pluginId, onClose }: { pluginId: string, o
     mal: 'MyAnimeList',
     vimeo: 'Vimeo',
     goodreads: 'Goodreads RSS',
-    s3: 'S3 Compatible'
+    s3: 'S3 Compatible',
+    sftp: 'SFTP / SSHFS'
   };
 
   const handleImport = async () => {
-    if (pluginId !== 's3' && !username.trim()) {
+    if (!isCustomBackend && !username.trim()) {
       setError('Please enter a username or ID');
       return;
     }
@@ -32,7 +35,35 @@ export function OpenDataImportModal({ pluginId, onClose }: { pluginId: string, o
     try {
       let count = 0;
 
-      if (pluginId === 's3') {
+      if (pluginId === 'sftp') {
+        const host = getPluginSecret('sftp', 'host');
+        const port = getPluginSecret('sftp', 'port');
+        const username = getPluginSecret('sftp', 'username');
+        const password = getPluginSecret('sftp', 'password');
+        const privateKey = getPluginSecret('sftp', 'privateKey');
+        const remotePath = getPluginSecret('sftp', 'remotePath') || 'journal.json';
+
+        if (!host || !username) {
+          throw new Error('SFTP not configured. Please configure it in the Sync tab.');
+        }
+
+        const content = await downloadFromSFTP({
+          host,
+          port: parseInt(port) || 22,
+          username,
+          password,
+          privateKey,
+          remotePath
+        });
+        
+        const journal = JSON.parse(content);
+        if (!Array.isArray(journal)) throw new Error('Invalid journal data format in SFTP');
+
+        for (const item of journal) {
+          addItem(item);
+          count++;
+        }
+      } else if (pluginId === 's3') {
         const endpoint = getPluginSecret('s3', 'endpoint');
         const region = getPluginSecret('s3', 'region');
         const bucket = getPluginSecret('s3', 'bucket');
@@ -193,20 +224,25 @@ export function OpenDataImportModal({ pluginId, onClose }: { pluginId: string, o
           ) : (
             <>
               <p className="text-zinc-400 text-sm">
-                Enter your public {pluginNames[pluginId]} username to import your public data. No login required.
+                {pluginId === 's3' || pluginId === 'sftp' 
+                  ? `Import your journal data from your configured ${pluginNames[pluginId]} backend.`
+                  : `Enter your public ${pluginNames[pluginId]} username to import your public data. No login required.`
+                }
               </p>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-zinc-400">Username</label>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  placeholder="e.g., john_doe"
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                  onKeyDown={(e) => e.key === 'Enter' && handleImport()}
-                />
-              </div>
+              {pluginId !== 's3' && pluginId !== 'sftp' && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-zinc-400">Username</label>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="e.g., john_doe"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                    onKeyDown={(e) => e.key === 'Enter' && handleImport()}
+                  />
+                </div>
+              )}
 
               {error && (
                 <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
@@ -236,7 +272,7 @@ export function OpenDataImportModal({ pluginId, onClose }: { pluginId: string, o
               </button>
               <button 
                 onClick={handleImport}
-                disabled={isLoading || !username.trim()}
+                disabled={isLoading || (!isCustomBackend && !username.trim())}
                 className="px-6 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold flex items-center gap-2 transition-colors"
               >
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}

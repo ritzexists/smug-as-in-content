@@ -195,9 +195,8 @@ export default function MobileView() {
                 )}
 
                 <button 
-                  onClick={() => { if (isPWA) { setActiveTab('journal'); setIsSettingsOpen(false); } }}
-                  disabled={!isPWA}
-                  className={`w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform ${isPWA ? 'active:scale-95' : 'opacity-50 grayscale cursor-not-allowed'}`}
+                  onClick={() => { setActiveTab('journal'); setIsSettingsOpen(false); }}
+                  className="w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform active:scale-95"
                 >
                   <div className="p-3 bg-[#268bd2]/20 text-[#268bd2] rounded-xl">
                     <Book className="w-6 h-6" />
@@ -209,9 +208,8 @@ export default function MobileView() {
                 </button>
 
                 <button 
-                  onClick={() => { if (isPWA) handleOpenEditor(); }}
-                  disabled={!isPWA}
-                  className={`w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform ${isPWA ? 'active:scale-95' : 'opacity-50 grayscale cursor-not-allowed'}`}
+                  onClick={() => handleOpenEditor()}
+                  className="w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform active:scale-95"
                 >
                   <div className="p-3 bg-[#859900]/20 text-[#859900] rounded-xl">
                     <Plus className="w-6 h-6" />
@@ -223,9 +221,8 @@ export default function MobileView() {
                 </button>
 
                 <button 
-                  onClick={() => { if (isPWA) { setActiveTab('plugins'); setIsSettingsOpen(false); } }}
-                  disabled={!isPWA}
-                  className={`w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform ${isPWA ? 'active:scale-95' : 'opacity-50 grayscale cursor-not-allowed'}`}
+                  onClick={() => { setActiveTab('plugins'); setIsSettingsOpen(false); }}
+                  className="w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform active:scale-95"
                 >
                   <div className="p-3 bg-[#d33682]/20 text-[#d33682] rounded-xl">
                     <Share2 className="w-6 h-6" />
@@ -237,9 +234,8 @@ export default function MobileView() {
                 </button>
 
                 <button 
-                  onClick={() => { if (isPWA) { setActiveTab('settings'); setIsSettingsOpen(false); } }}
-                  disabled={!isPWA}
-                  className={`w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform ${isPWA ? 'active:scale-95' : 'opacity-50 grayscale cursor-not-allowed'}`}
+                  onClick={() => { setActiveTab('settings'); setIsSettingsOpen(false); }}
+                  className="w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform active:scale-95"
                 >
                   <div className="p-3 bg-[#586e75]/20 text-[#839496] rounded-xl">
                     <Settings className="w-6 h-6" />
@@ -251,9 +247,8 @@ export default function MobileView() {
                 </button>
 
                 <button 
-                  onClick={() => { if (isPWA) { setActiveTab('help'); setIsSettingsOpen(false); } }}
-                  disabled={!isPWA}
-                  className={`w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform ${isPWA ? 'active:scale-95' : 'opacity-50 grayscale cursor-not-allowed'}`}
+                  onClick={() => { setActiveTab('help'); setIsSettingsOpen(false); }}
+                  className="w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform active:scale-95"
                 >
                   <div className="p-3 bg-[#b58900]/20 text-[#b58900] rounded-xl">
                     <HelpCircle className="w-6 h-6" />
@@ -266,9 +261,8 @@ export default function MobileView() {
 
                 {activeTab !== 'discover' && (
                   <button 
-                    onClick={() => { if (isPWA) { setActiveTab('discover'); setIsSettingsOpen(false); } }}
-                    disabled={!isPWA}
-                    className={`w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform ${isPWA ? 'active:scale-95' : 'opacity-50 grayscale cursor-not-allowed'}`}
+                    onClick={() => { setActiveTab('discover'); setIsSettingsOpen(false); }}
+                    className="w-full flex items-center gap-4 p-4 bg-[#073642] rounded-2xl text-left transition-transform active:scale-95"
                   >
                     <div className="p-3 bg-[#268bd2]/20 text-[#268bd2] rounded-xl">
                       <Film className="w-6 h-6" />
