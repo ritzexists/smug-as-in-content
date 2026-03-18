@@ -58,8 +58,10 @@ export function SwipeDeck({ onSwipeUp, onSwipeDown }: { onSwipeUp: () => void, o
     <motion.div 
       id="mobile-swipe-deck"
       className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-zinc-950"
+      style={{ touchAction: 'none' }}
       onPanEnd={(e, info) => {
-        if (cards.length === 0) {
+        // Only trigger if it's primarily a vertical swipe
+        if (Math.abs(info.offset.y) > Math.abs(info.offset.x)) {
           if (info.offset.y > 50) onSwipeDown();
           else if (info.offset.y < -50) onSwipeUp();
         }
