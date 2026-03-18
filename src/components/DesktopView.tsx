@@ -12,6 +12,7 @@ import { TutorialOverlay } from './TutorialOverlay';
 import { Logo } from './Logo';
 import { RatingRing, ActionRing } from './mobile/RingMenus';
 import { MediaItem } from '../types';
+import { syncToS3 } from '../services/s3Sync';
 
 export default function DesktopView() {
   const [activeTab, setActiveTab] = useState<'journal' | 'plugins' | 'settings' | 'search' | 'help'>('journal');

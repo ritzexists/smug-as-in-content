@@ -103,19 +103,43 @@ export default function MobileView() {
         )}
         {activeTab === 'plugins' && (
           <div className="p-4">
-            <h2 className="text-2xl font-bold mb-6 text-white">Plugins & Sync</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Plugins & Sync</h2>
+              <button 
+                onClick={() => setActiveTab('discover')} 
+                className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-400 hover:text-white border border-zinc-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
             <PluginManager />
           </div>
         )}
         {activeTab === 'settings' && (
           <div className="p-4">
-            <h2 className="text-2xl font-bold mb-6 text-white">Settings</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Settings</h2>
+              <button 
+                onClick={() => setActiveTab('discover')} 
+                className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-400 hover:text-white border border-zinc-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
             <SettingsManager />
           </div>
         )}
         {activeTab === 'help' && (
           <div className="p-4">
-            <h2 className="text-2xl font-bold mb-6 text-white">Help & Tutorial</h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white">Help & Tutorial</h2>
+              <button 
+                onClick={() => setActiveTab('discover')} 
+                className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center text-zinc-400 hover:text-white border border-zinc-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
             <HelpManager onStartTutorial={() => setShowTutorial(true)} />
           </div>
         )}

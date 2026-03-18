@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import { useMediaStore } from '../store';
-import { Download, Upload, Copy, Check, Lock, Key, RefreshCw, FolderOpen, Save } from 'lucide-react';
+import { Download, Upload, Copy, Check, Lock, Key, RefreshCw, FolderOpen, Save, Cloud } from 'lucide-react';
 import CryptoJS from 'crypto-js';
+import { strToU8, zipSync } from 'fflate';
+import { SYNC_BACKENDS } from './desktop/PluginManager';
 
 export function SettingsManager() {
   const { 
     activeBackends, 
     activeScrobblers, 
-    activeSyncs, 
+    activeSyncs,
+    activeSettingsSyncs,
+    toggleSettingsSync,
+    pluginSecrets,
     importSettings, 
     autoBackupEnabled, 
     toggleAutoBackup,
@@ -27,6 +32,8 @@ export function SettingsManager() {
       activeBackends,
       activeScrobblers,
       activeSyncs,
+      activeSettingsSyncs,
+      pluginSecrets,
       autoBackupEnabled,
       categories,
       version: 1
@@ -44,11 +51,15 @@ export function SettingsManager() {
       const data = getExportData();
       const encrypted = CryptoJS.AES.encrypt(data, password).toString();
       
-      const blob = new Blob([encrypted], { type: 'text/plain' });
+      const zipped = zipSync({
+        ['settings.enc']: strToU8(encrypted)
+      });
+
+      const blob = new Blob([zipped], { type: 'application/zip' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'smug-settings.enc';
+      a.download = `smug-settings-backup-${new Date().toISOString().split('T')[0]}.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -125,7 +136,92 @@ export function SettingsManager() {
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
         <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-2">
-          <Lock className="w-5 h-5 text-indigo-400" /> Encrypted Settings Sync
+          <Cloud className="w-5 h-5 text-indigo-400" /> Encrypted Settings Sync
+        </h3>
+        <p className="text-zinc-400 text-sm mb-6">
+          Automatically save always-encrypted settings files to your enabled backup and sync plugins.
+        </p>
+
+        {activeSyncs.length === 0 ? (
+          <div className="p-4 bg-zinc-950/50 rounded-xl border border-zinc-800/50 text-zinc-400 text-sm text-center">
+            No backup/sync plugins are currently enabled. Enable them in the Plugins tab.
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="space-y-3">
+              {activeSyncs.map(syncId => {
+                const backend = SYNC_BACKENDS.find(b => b.id === syncId);
+                if (!backend) return null;
+                
+                const isEnabled = activeSettingsSyncs.includes(syncId);
+                
+                return (
+                  <label 
+                    key={syncId}
+                    className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-colors ${
+                      isEnabled 
+                        ? 'bg-indigo-500/10 border-indigo-500/50' 
+                        : 'bg-zinc-950/50 border-zinc-800/50 hover:border-zinc-700'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${isEnabled ? 'bg-indigo-500/20 text-indigo-400' : 'bg-zinc-800 text-zinc-400'}`}>
+                        <backend.icon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <span className="block text-white font-medium">{backend.name}</span>
+                        <span className="block text-xs text-zinc-500">
+                          {isEnabled ? 'Syncing settings to this location' : 'Click to enable settings sync'}
+                        </span>
+                      </div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={isEnabled}
+                      onChange={() => toggleSettingsSync(syncId)}
+                      className="w-5 h-5 rounded border-zinc-700 bg-zinc-900 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-zinc-950"
+                    />
+                  </label>
+                );
+              })}
+            </div>
+
+            <div className="p-4 bg-zinc-950/50 rounded-xl border border-zinc-800/50">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={autoBackupEnabled}
+                  onChange={toggleAutoBackup}
+                  className="w-5 h-5 rounded border-zinc-700 bg-zinc-900 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-zinc-950"
+                />
+                <div>
+                  <span className="block text-white font-medium">Store all changes</span>
+                  <span className="block text-sm text-zinc-400">Automatically backup settings when changes occur</span>
+                </div>
+              </label>
+
+              <div className="flex gap-3 pt-4 mt-4 border-t border-zinc-800/50">
+                <button
+                  onClick={() => setSuccess('Backup location configured (Mock)')}
+                  className="flex-1 flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  <FolderOpen className="w-4 h-4" /> Configure Location
+                </button>
+                <button
+                  onClick={() => setSuccess('Manual backup completed (Mock)')}
+                  className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  <Save className="w-4 h-4" /> Manual Backup
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+        <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-2">
+          <Lock className="w-5 h-5 text-indigo-400" /> Encrypted Settings Export
         </h3>
         <p className="text-zinc-400 text-sm mb-6">
           Securely export and import your plugin configurations and sync settings. Your journal data is not included.
@@ -183,43 +279,6 @@ export function SettingsManager() {
               </button>
             </div>
           </div>
-
-          {activeSyncs.length > 0 && (
-            <div className="mt-8 pt-8 border-t border-zinc-800">
-              <h4 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
-                <RefreshCw className="w-5 h-5 text-indigo-400" /> Auto-Backup
-              </h4>
-              <div className="space-y-4 p-4 bg-zinc-950/50 rounded-xl border border-zinc-800/50">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={autoBackupEnabled}
-                    onChange={toggleAutoBackup}
-                    className="w-5 h-5 rounded border-zinc-700 bg-zinc-900 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-zinc-950"
-                  />
-                  <div>
-                    <span className="block text-white font-medium">Store all changes</span>
-                    <span className="block text-sm text-zinc-400">Automatically backup settings when changes occur</span>
-                  </div>
-                </label>
-
-                <div className="flex gap-3 pt-4 border-t border-zinc-800/50">
-                  <button
-                    onClick={() => setSuccess('Backup location configured (Mock)')}
-                    className="flex-1 flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    <FolderOpen className="w-4 h-4" /> Configure Location
-                  </button>
-                  <button
-                    onClick={() => setSuccess('Manual backup completed (Mock)')}
-                    className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    <Save className="w-4 h-4" /> Manual Backup
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {error && (
             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
