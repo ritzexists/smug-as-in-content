@@ -1,20 +1,11 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Smug Media Tracker
 
-# Run and deploy your AI Studio app
+A progressive web app for tracking media consumption including movies, tv shows, books, and games.
 
-This contains everything you need to run your app locally.
+## License
 
-View your app in AI Studio: https://ai.studio/apps/8a947cc5-71fd-4c8e-9e25-aab78b854ab1
+See [LICENSE.md](LICENSE.md) for details.
 
-## Run Locally
+## Contributing
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
