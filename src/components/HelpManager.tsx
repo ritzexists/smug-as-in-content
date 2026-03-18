@@ -89,6 +89,13 @@ export function HelpManager({ onStartTutorial }: { onStartTutorial: () => void }
               <p className="text-sm text-zinc-400 leading-relaxed">{faq.a}</p>
             </div>
           ))}
+          <div className="bg-zinc-900/50 border border-zinc-800/50 p-6 rounded-3xl">
+            <h5 className="font-bold text-indigo-400 mb-2">Q: Why can't I access the Swipe Deck on mobile?</h5>
+            <p className="text-sm text-zinc-400 leading-relaxed">
+              The interactive Swipe Deck is a premium feature reserved for Progressive Web App (PWA) users. 
+              Please install the app to your home screen using the "Install App" button in the menu to unlock swiping and full-screen discovery.
+            </p>
+          </div>
         </div>
       </div>
 

@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Book, Film, Tv, Gamepad2, Music, Settings, Share2, Plus, Search, X, HelpCircle } from 'lucide-react';
+import { Book, Film, Tv, Gamepad2, Music, Settings, Share2, Plus, Search, X, HelpCircle, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useMediaStore } from '../store';
+import { usePWA } from '../lib/pwa';
 import { MediaGrid } from './desktop/MediaGrid';
 import { ReviewEditor } from './desktop/ReviewEditor';
 import { PluginManager } from './desktop/PluginManager';
@@ -46,6 +47,7 @@ export default function DesktopView() {
   };
 
   const { items, categories, addCategory, addItem, updateItem, settingsLastModified, settingsLastExported } = useMediaStore();
+  const { isPWA, canInstall, installPWA } = usePWA();
   
   const handleTriage = (item: Partial<MediaItem>, dir: 'left' | 'right') => {
     setRingConfig({
@@ -207,6 +209,17 @@ export default function DesktopView() {
                 </button>
               </nav>
               
+              <div className="px-4 mb-2">
+                {!isPWA && canInstall && (
+                  <button 
+                    onClick={installPWA}
+                    className="w-full flex items-center justify-center gap-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-400 px-4 py-2 rounded-lg font-medium transition-colors border border-indigo-500/30 mb-2"
+                  >
+                    <Download className="w-5 h-5" /> Install App
+                  </button>
+                )}
+              </div>
+
               <div className="p-4 border-t border-[#073642] space-y-2">
                 <button 
                   id="search-button"
